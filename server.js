@@ -4,6 +4,7 @@ const path = require('path')
 const app = express()
 app.use(express.static(path.join(__dirname, '/public')))
 app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 
 const db = [
 	{ id: 1, author: 'John Doe', text: 'This company is worth every coin!' },
@@ -21,6 +22,13 @@ app.get('/testimonials/random', (req, res) => {
 app.get('/testimonials/:id', (req, res) => {
 	const id = Number(req.params.id) - 1
 	res.json(db[id])
+})
+
+app.post('/testimonials', (req, res) => {
+	const id = db[db.length - 1].id + 1
+	const newTestimonial = Object.assign({ id: id }, req.body)
+	db.push(newTestimonial)
+	res.status(201).json({ data: newTestimonial })
 })
 
 app.use((req, res) => {
