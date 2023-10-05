@@ -20,15 +20,41 @@ app.get('/testimonials/random', (req, res) => {
 })
 
 app.get('/testimonials/:id', (req, res) => {
-	const id = Number(req.params.id) - 1
-	res.json(db[id])
+	const id = Number(req.params.id)
+	const testimonial = db.find(el => el.id === id)
+	if (!testimonial) {
+		return res.status(404).json({ message: 'Invalid ID' })
+	}
+	res.json(testimonial)
 })
 
 app.post('/testimonials', (req, res) => {
 	const id = db[db.length - 1].id + 1
 	const newTestimonial = Object.assign({ id: id }, req.body)
 	db.push(newTestimonial)
-	res.status(201).json({ data: newTestimonial })
+	res.status(201).json({ message: 'OK' })
+})
+
+app.put('/testimonials/:id', (req, res) => {
+	const { author, text } = req.body
+	const id = Number(req.params.id)
+	const testimonial = db.find(el => el.id === id)
+	const index = db.indexOf(testimonial)
+	if (!testimonial) {
+		return res.status(404).json({ message: 'Invalid ID' })
+	} else {
+		db[index] = { ...testimonial, author, text }
+		res.json({ message: 'data changed' })
+	}
+})
+
+app.delete('/testimonials/:id', (req, res) => {
+	const id = Number(req.params.id)
+	const testimonial = db.find(el => el.id === id)
+	if (!testimonial) {
+		return res.status(404).json({ message: 'Invalid ID' })
+	}
+	res.json({ message: 'OK', data: [...db, req.body] })
 })
 
 app.use((req, res) => {
