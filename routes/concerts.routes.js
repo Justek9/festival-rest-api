@@ -1,10 +1,6 @@
-// concert.routes.js
-
 const express = require('express')
 const router = express.Router()
 const db = require('../db')
-
-
 
 router.route('/concerts').get((req, res) => {
 	res.json(db.concerts)
@@ -51,6 +47,5 @@ router.route('/concerts/:id').put((req, res) => {
 		res.json({ message: 'data changed' })
 	}
 })
-
 
 module.exports = router

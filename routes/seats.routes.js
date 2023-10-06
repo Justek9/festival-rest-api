@@ -1,10 +1,6 @@
-// concert.routes.js
-
 const express = require('express')
 const router = express.Router()
 const db = require('../db')
-
-
 
 router.route('/seats').get((req, res) => {
 	res.json(db.seats)
@@ -43,7 +39,7 @@ router.route('/seats/:id').put((req, res) => {
 	const { day, seat, client, email } = req.body
 	const id = Number(req.params.id)
 	const seatChanged = db.seats.find(el => el.id === id)
-	const index = db.coseatsncerts.indexOf(seatChanged)
+	const index = db.seats.indexOf(seatChanged)
 	if (!seatChanged) {
 		return res.status(404).json({ message: 'Invalid ID' })
 	} else {
