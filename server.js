@@ -1,6 +1,6 @@
 const express = require('express')
 const path = require('path')
-const db = require('./db')
+const cors = require('cors')
 
 // import routes
 const testimonialRoutes = require('./routes/testimonials.routes')
@@ -8,6 +8,14 @@ const concertsRoutes = require('./routes/concerts.routes')
 const seatsRoutes = require('./routes/seats.routes')
 
 const app = express()
+
+// cors
+const options = {
+	origin: 'http://localhost:3000',
+	methods: 'GET,PUT,PATCH,POST,DELETE',
+}
+app.use(cors(options))
+
 app.use(express.static(path.join(__dirname, '/public')))
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
