@@ -16,10 +16,17 @@ router.route('/seats/:id').get((req, res) => {
 })
 
 router.route('/seats').post((req, res) => {
-	const id = db.seats[db.seats.length - 1].id + 1
-	const newSeat = Object.assign({ id: id }, req.body)
-	db.seats.push(newSeat)
-	res.status(201).json({ message: 'OK' })
+	const { day, seat } = req.body
+	const isTaken = db.seats.some(el => el.day === day && el.seat === seat)
+
+	if (isTaken) {
+		res.status(409).json({ message: 'The slot is already taken...' })
+	} else {
+		const id = db.seats[db.seats.length - 1].id + 1
+		const newSeat = Object.assign({ id: id }, req.body)
+		db.seats.push(newSeat)
+		res.status(201).json({ message: 'OK' })
+	}
 })
 
 router.route('/seats/:id').delete((req, res) => {
