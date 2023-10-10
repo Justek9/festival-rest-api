@@ -8,13 +8,7 @@ const concertsRoutes = require('./routes/concerts.routes')
 const seatsRoutes = require('./routes/seats.routes')
 
 const app = express()
-
-// cors
-const options = {
-	origin: 'http://localhost:3000',
-	methods: 'GET,PUT,PATCH,POST,DELETE',
-}
-app.use(cors(options))
+app.use(cors())
 
 app.use(express.static(path.join(__dirname, '/public')))
 app.use(express.urlencoded({ extended: false }))
