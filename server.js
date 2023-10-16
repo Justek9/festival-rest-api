@@ -20,6 +20,12 @@ app.use(express.static(path.join(__dirname, '/public')))
 app.use(express.static(path.join(__dirname, '/client/build')))
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
+
+app.use((req, res, next) => {
+	req.io = io;
+	next();
+  });
+
 app.use('/api', testimonialRoutes) // add testimonial routes to server
 app.use('/api', concertsRoutes) // add concerts routes to server
 app.use('/api', seatsRoutes) // add seats routes to server
