@@ -1,61 +1,61 @@
 const express = require('express')
 const { Socket } = require('socket.io')
 const router = express.Router()
-const db = require('../db')
+const Seat = require('../models/seats.model')
 
-router.route('/seats').get((req, res) => {
-	res.json(db.seats)
-})
-
-router.route('/seats/:id').get((req, res) => {
-	const id = Number(req.params.id)
-	const seat = db.seats.find(el => el.id === id)
-	if (!seat) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	}
-	res.json(seat)
-})
-
-router.route('/seats').post((req, res) => {
-	const { day, seat } = req.body
-	const isTaken = db.seats.some(el => el.day === day && el.seat === seat)
-
-	if (isTaken) {
-		res.status(409).json({ message: 'The slot is already taken...' })
-	} else {
-		const id = db.seats[db.seats.length - 1].id + 1
-		const newSeat = Object.assign({ id: id }, req.body)
-		db.seats.push(newSeat)
-		// emit action by socket
-	
-		req.io.emit('seatsUpdated', db.seats)
-		res.status(201).json({ message: 'OK' })
+router.get('/seats', async (req, res) => {
+	try {
+		res.json(await Seat.find())
+	} catch (err) {
+		res.status(500).json({ message: err })
 	}
 })
 
-router.route('/seats/:id').delete((req, res) => {
-	const id = Number(req.params.id)
-	const seat = db.seats.find(el => el.id === id)
-	const index = db.seats.indexOf(seat)
-
-	if (!seat) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	} else {
-		db.seats.splice(index, 1)
-		res.json({ message: 'OK, deleted' })
+router.get('/seats/:id', async (req, res) => {
+	try {
+		const seat = await Seat.findById(req.params.id)
+		if (!seat) res.status(404).json({ message: 'Not found...' })
+		else res.json(seat)
+	} catch (err) {
+		res.status(500).json({ message: err })
 	}
 })
 
-router.route('/seats/:id').put((req, res) => {
-	const { day, seat, client, email } = req.body
-	const id = Number(req.params.id)
-	const seatChanged = db.seats.find(el => el.id === id)
-	const index = db.seats.indexOf(seatChanged)
-	if (!seatChanged) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	} else {
-		db.seats[index] = { ...seat, day, seat, client, email }
-		res.json({ message: 'data changed' })
+router.post('/seats', async (req, res) => {
+	try {
+		const { day, seat, client, email } = req.body
+		const newSeat = new Seat({ day: day, seat: seat, client: client, email: email })
+		await newSeat.save()
+		const seats = await Seat.find()
+		req.io.emit('seatsUpdated', seats)
+		res.json({ message: 'OK' })
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
+
+router.delete('/seats/:id', async (req, res) => {
+	try {
+		const seat = await Seat.findById(req.params.id)
+		if (seat) {
+			await Seat.deleteOne({ _id: req.params.id })
+			res.json({ message: 'OK' })
+		}
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
+
+router.put('/seats/:id', async (req, res) => {
+	try {
+		const { day, seat, client, email } = req.body
+		const changedSeat = await Seat.findById(req.params.id)
+		if (changedSeat) {
+			await Seat.updateOne({ _id: req.params.id }, { $set: { day, seat, client, email } })
+			res.json({ message: 'OK' })
+		}
+	} catch (err) {
+		res.status(500).json({ message: err })
 	}
 })
 

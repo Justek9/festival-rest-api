@@ -4,7 +4,7 @@ const Concert = require('../models/concerts.model')
 
 router.get('/concerts', async (req, res) => {
 	try {
-		res.json(await Concert.find().populate('day'))
+		res.json(await Concert.find())
 	} catch (err) {
 		res.status(500).json({ message: err })
 	}
@@ -46,7 +46,7 @@ router.delete('/concerts/:id', async (req, res) => {
 router.put('/concerts/:id', async (req, res) => {
 	try {
 		const { performer, genre, price, day, image } = req.body
-		const prod = await Concert.findById(req.params.id)
+		const concert = await Concert.findById(req.params.id)
 		if (concert) {
 			await Concert.updateOne({ _id: req.params.id }, { $set: { performer, genre, price, day, image } })
 			res.json({ message: 'OK' })

@@ -10,7 +10,7 @@ const mongoose = require('mongoose')
 // import routes
 // const testimonialRoutes = require('./routes/testimonials.routes')
 const concertsRoutes = require('./routes/concerts.routes')
-// const seatsRoutes = require('./routes/seats.routes')
+const seatsRoutes = require('./routes/seats.routes')
 
 const server = app.listen(process.env.PORT || 8000, () => {
 	console.log('Server is running on port: 8000')
@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 
 // app.use('/api', testimonialRoutes) // add testimonial routes to server
 app.use('/api', concertsRoutes) // add concerts routes to server
-// app.use('/api', seatsRoutes) // add seats routes to server
+app.use('/api', seatsRoutes) // add seats routes to server
 
 // connects our backend code with the database
 mongoose.connect('mongodb://0.0.0.0:27017/NewWaveDB', { useNewUrlParser: true })
