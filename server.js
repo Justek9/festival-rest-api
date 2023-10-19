@@ -5,6 +5,8 @@ const socket = require('socket.io')
 const app = express()
 app.use(cors())
 
+const mongoose = require('mongoose')
+
 // import routes
 const testimonialRoutes = require('./routes/testimonials.routes')
 const concertsRoutes = require('./routes/concerts.routes')
@@ -22,9 +24,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
 app.use((req, res, next) => {
-	req.io = io;
-	next();
-  });
+	req.io = io
+	next()
+})
 
 app.use('/api', testimonialRoutes) // add testimonial routes to server
 app.use('/api', concertsRoutes) // add concerts routes to server
@@ -41,3 +43,13 @@ app.use((req, res) => {
 io.on('connection', socket => {
 	console.log('New client! Its id – ' + socket.id)
 })
+
+// connects our backend code with the database
+mongoose.connect('mongodb://0.0.0.0:27017/NewWaveDB', { useNewUrlParser: true })
+const db = mongoose.connection
+
+db.once('open', () => {
+	console.log('Connected to the database')
+})
+db.on('error', err => console.log('Error ' + err))
+
