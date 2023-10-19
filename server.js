@@ -8,7 +8,7 @@ app.use(cors())
 const mongoose = require('mongoose')
 
 // import routes
-// const testimonialRoutes = require('./routes/testimonials.routes')
+const testimonialRoutes = require('./routes/testimonials.routes')
 const concertsRoutes = require('./routes/concerts.routes')
 const seatsRoutes = require('./routes/seats.routes')
 
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 	next()
 })
 
-// app.use('/api', testimonialRoutes) // add testimonial routes to server
+app.use('/api', testimonialRoutes) // add testimonial routes to server
 app.use('/api', concertsRoutes) // add concerts routes to server
 app.use('/api', seatsRoutes) // add seats routes to server
 
@@ -41,7 +41,6 @@ db.once('open', () => {
 })
 db.on('error', err => console.log('Error ' + err))
 
-
 app.get('*', (req, res) => {
 	res.sendFile(path.join(__dirname, '/client/build/index.html'))
 })
@@ -53,4 +52,3 @@ app.use((req, res) => {
 io.on('connection', socket => {
 	console.log('New client! Its id – ' + socket.id)
 })
-

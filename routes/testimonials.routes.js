@@ -1,54 +1,58 @@
 const express = require('express')
 const router = express.Router()
-const db = require('../db')
+const Testimonial = require('../models/testimonials.model')
 
-router.route('/testimonials').get((req, res) => {
-	res.json(db.testimonials)
-})
-router.route('/testimonials/random').get((req, res) => {
-	const random = Math.floor(Math.random() * db.testimonials.length)
-	res.json(db.testimonials[random])
-})
-
-router.route('/testimonials/:id').get((req, res) => {
-	const id = Number(req.params.id)
-	const testimonial = db.testimonials.find(el => el.id === id)
-	if (!testimonial) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	}
-	res.json(testimonial)
-})
-
-router.route('/testimonials').post((req, res) => {
-	const id = db.testimonials[db.testimonials.length - 1].id + 1
-	const newTestimonial = Object.assign({ id: id }, req.body)
-	db.testimonials.push(newTestimonial)
-	res.status(201).json({ message: 'OK' })
-})
-
-router.route('/testimonials/:id').put((req, res) => {
-	const { author, text } = req.body
-	const id = Number(req.params.id)
-	const testimonial = db.testimonials.find(el => el.id === id)
-	const index = db.testimonials.indexOf(testimonial)
-	if (!testimonial) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	} else {
-		db.testimonials[index] = { ...testimonial, author, text }
-		res.json({ message: 'data changed' })
+router.get('/testimonials', async (req, res) => {
+	try {
+		res.json(await Testimonial.find())
+	} catch (err) {
+		res.status(500).json({ message: err })
 	}
 })
 
-router.route('/testimonials/:id').delete((req, res) => {
-	const id = Number(req.params.id)
-	const testimonial = db.testimonials.find(el => el.id === id)
-	const index = db.testimonials.indexOf(testimonial)
+router.get('/testimonials/:id', async (req, res) => {
+	try {
+		const testimonial = await Testimonial.findById(req.params.id)
+		if (!testimonial) res.status(404).json({ message: 'Not found...' })
+		else res.json(testimonial)
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
 
-	if (!testimonial) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	} else {
-		db.testimonials.splice(index, 1)
-		res.json({ message: 'OK, deleted' })
+router.post('/testimonials', async (req, res) => {
+	try {
+		const { author, text } = req.body
+		const newTestimonial = new Testimonial({ author, text })
+		await newTestimonial.save()
+		res.json({ message: 'OK' })
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
+
+router.put('/testimonials/:id', async (req, res) => {
+	try {
+		const { author, text } = req.body
+		const testimonial = await Testimonial.findById(req.params.id)
+		if (testimonial) {
+			await Testimonial.updateOne({ _id: req.params.id }, { $set: { author, text } })
+			res.json({ message: 'OK' })
+		}
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
+
+router.delete('/testimonials/:id', async (req, res) => {
+	try {
+		const testimonial = await Testimonial.findById(req.params.id)
+		if (testimonial) {
+			await Testimonial.deleteOne({ _id: req.params.id })
+			res.json({ message: 'OK' })
+		}
+	} catch (err) {
+		res.status(500).json({ message: err })
 	}
 })
 
