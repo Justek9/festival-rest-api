@@ -1,50 +1,58 @@
 const express = require('express')
 const router = express.Router()
-const db = require('../db')
+const Concert = require('../models/concerts.model')
 
-router.route('/concerts').get((req, res) => {
-	res.json(db.concerts)
-})
-
-router.route('/concerts/:id').get((req, res) => {
-	const id = Number(req.params.id)
-	const concert = db.concerts.find(el => el.id === id)
-	if (!concert) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	}
-	res.json(concert)
-})
-
-router.route('/concerts').post((req, res) => {
-	const id = db.concerts[db.concerts.length - 1].id + 1
-	const newConcert = Object.assign({ id: id }, req.body)
-	db.concerts.push(newConcert)
-	res.status(201).json({ message: 'OK' })
-})
-
-router.route('/concerts/:id').delete((req, res) => {
-	const id = Number(req.params.id)
-	const concert = db.concerts.find(el => el.id === id)
-	const index = db.concerts.indexOf(concert)
-
-	if (!concert) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	} else {
-		db.concerts.splice(index, 1)
-		res.json({ message: 'OK, deleted' })
+router.get('/concerts', async (req, res) => {
+	try {
+		res.json(await Concert.find().populate('day'))
+	} catch (err) {
+		res.status(500).json({ message: err })
 	}
 })
 
-router.route('/concerts/:id').put((req, res) => {
-	const { performer, genre, price, day, image } = req.body
-	const id = Number(req.params.id)
-	const concert = db.concerts.find(el => el.id === id)
-	const index = db.concerts.indexOf(concert)
-	if (!concert) {
-		return res.status(404).json({ message: 'Invalid ID' })
-	} else {
-		db.concerts[index] = { ...concert, performer, genre, price, day, image }
-		res.json({ message: 'data changed' })
+router.get('/concerts/:id', async (req, res) => {
+	try {
+		const concert = await Concert.findById(req.params.id)
+		if (!concert) res.status(404).json({ message: 'Not found...' })
+		else res.json(concert)
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
+
+router.post('/concerts', async (req, res) => {
+	try {
+		const { performer, genre, price, day, image } = req.body
+		const newConcert = new Concert({ performer, genre, price, day, image })
+		await newConcert.save()
+		res.json({ message: 'OK' })
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
+
+router.delete('/concerts/:id', async (req, res) => {
+	try {
+		const concert = await Concert.findById(req.params.id)
+		if (concert) {
+			await Concert.deleteOne({ _id: req.params.id })
+			res.json({ message: 'OK' })
+		}
+	} catch (err) {
+		res.status(500).json({ message: err })
+	}
+})
+
+router.put('/concerts/:id', async (req, res) => {
+	try {
+		const { performer, genre, price, day, image } = req.body
+		const prod = await Concert.findById(req.params.id)
+		if (concert) {
+			await Concert.updateOne({ _id: req.params.id }, { $set: { performer, genre, price, day, image } })
+			res.json({ message: 'OK' })
+		}
+	} catch (err) {
+		res.status(500).json({ message: err })
 	}
 })
 
