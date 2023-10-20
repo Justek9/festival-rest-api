@@ -33,11 +33,15 @@ app.use('/api', concertsRoutes) // add concerts routes to server
 app.use('/api', seatsRoutes) // add seats routes to server
 
 // connects our backend code with the database
-mongoose.connect('mongodb://0.0.0.0:27017/NewWaveDB', { useNewUrlParser: true })
+const uri = 'mongodb+srv://zagorskaj:EightXYZ@cluster0.gh0ncql.mongodb.net/NewWaveDB?retryWrites=true&w=majority'
+mongoose.connect(uri, {
+	useNewUrlParser: true,
+})
 const db = mongoose.connection
 
 db.once('open', () => {
 	console.log('Connected to the database')
+	
 })
 db.on('error', err => console.log('Error ' + err))
 
