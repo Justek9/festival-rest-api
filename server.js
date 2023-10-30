@@ -15,6 +15,7 @@ const seatsRoutes = require('./routes/seats.routes')
 const server = app.listen(process.env.PORT || 8000, () => {
 	console.log('Server is running on port: 8000')
 })
+
 const io = socket(server)
 
 app.use(express.static(path.join(__dirname, '/public')))
@@ -32,16 +33,23 @@ app.use('/api', testimonialRoutes) // add testimonial routes to server
 app.use('/api', concertsRoutes) // add concerts routes to server
 app.use('/api', seatsRoutes) // add seats routes to server
 
-// connects our backend code with the database
+const NODE_ENV = process.env.NODE_ENV
+let dbUri = ''
+
 const uri = 'mongodb+srv://zagorskaj:EightXYZ@cluster0.gh0ncql.mongodb.net/NewWaveDB?retryWrites=true&w=majority'
-mongoose.connect(uri, {
-	useNewUrlParser: true,
-})
+if (NODE_ENV === 'test') dbUri = 'mongodb://0.0.0.0:27017/neWaveDBtest'
+else dbUri = uri
+
+mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true })
 const db = mongoose.connection
 
 db.once('open', () => {
 	console.log('Connected to the database')
-	
+})
+db.on('error', err => console.log('Error ' + err))
+
+db.once('open', () => {
+	console.log('Connected to the database')
 })
 db.on('error', err => console.log('Error ' + err))
 
@@ -56,3 +64,5 @@ app.use((req, res) => {
 io.on('connection', socket => {
 	console.log('New client! Its id – ' + socket.id)
 })
+
+module.exports = server

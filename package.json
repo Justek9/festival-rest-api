@@ -4,14 +4,19 @@
 	"description": "",
 	"main": "server.js",
 	"scripts": {
-		"start": "nodemon server.js"
+		"start": "nodemon server.js",
+		"test": "set NODE_ENV=test&& mocha \"./{,!(node_modules|client)/**/}*.test.js\"",
+		"test:watch": "onchange \"./**/*.js\" -i -k -- yarn test"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"chai": "4.2.0",
+		"chai-http": "4.3.0",
 		"cors": "^2.8.5",
 		"express": "4.17.1",
+		"mocha": "6.2.1",
 		"mongoose": "7.4.3",
 		"socket.io": "4.7.2"
 	}
