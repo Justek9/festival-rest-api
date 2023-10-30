@@ -4,6 +4,7 @@ import { Button, Progress, Alert } from 'reactstrap'
 import { getSeats, loadSeatsRequest, getRequests, loadSeats } from '../../../redux/seatsRedux'
 import './SeatChooser.scss'
 import io from 'socket.io-client'
+import { numberOfFreeSeats } from '../../../utils/numberOfFreeSeats'
 
 const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
 	const dispatch = useDispatch()
@@ -50,19 +51,6 @@ const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
 			)
 	}
 
-	const numberOfFreeSeats = () => {
-		let total = 50
-		let seatsTaken = []
-		for (let seat of seats) {
-			if (seat.day === chosenDay) {
-				seatsTaken.push(seat)
-			}
-		}
-
-		const freeSeats = total - seatsTaken.length
-		return freeSeats
-	}
-
 	return (
 		<div>
 			<h3>Pick a seat</h3>
@@ -79,7 +67,7 @@ const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
 			)}
 			{requests['LOAD_SEATS'] && requests['LOAD_SEATS'].pending && <Progress animated color='primary' value={50} />}
 			{requests['LOAD_SEATS'] && requests['LOAD_SEATS'].error && <Alert color='warning'>Couldn't load seats...</Alert>}
-			<p>Free seats: {numberOfFreeSeats()}/50</p>
+			<p>Free seats: {numberOfFreeSeats(seats, chosenDay)}/50</p>
 		</div>
 	)
 }

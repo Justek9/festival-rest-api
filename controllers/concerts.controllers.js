@@ -1,7 +1,15 @@
 const Concert = require('../models/concerts.model')
+const Seats = require('../models/seats.model')
 
 exports.getAll = async (req, res) => {
 	try {
+		const ticketsLeftDay1 = 50 - (await Seats.find({ day: { $eq: 1 } }).countDocuments())
+		const ticketsLeftDay2 = 50 - (await Seats.find({ day: { $eq: 2 } }).countDocuments())
+		const ticketsLeftDay3 = 50 - (await Seats.find({ day: { $eq: 3 } }).countDocuments())
+		await Concert.updateOne({ id: 1 }, { $set: { tickets: ticketsLeftDay1 } })
+		await Concert.updateOne({ id: 2 }, { $set: { tickets: ticketsLeftDay2 } })
+		await Concert.updateOne({ id: 3 }, { $set: { tickets: ticketsLeftDay3 } })
+
 		res.json(await Concert.find())
 	} catch (err) {
 		res.status(500).json({ message: err })
