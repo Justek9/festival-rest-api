@@ -3,14 +3,22 @@ const Seats = require('../models/seats.model')
 
 exports.getAll = async (req, res) => {
 	try {
-		const ticketsLeftDay1 = 50 - (await Seats.find({ day: { $eq: 1 } }).countDocuments())
-		const ticketsLeftDay2 = 50 - (await Seats.find({ day: { $eq: 2 } }).countDocuments())
-		const ticketsLeftDay3 = 50 - (await Seats.find({ day: { $eq: 3 } }).countDocuments())
-		await Concert.updateOne({ id: 1 }, { $set: { tickets: ticketsLeftDay1 } })
-		await Concert.updateOne({ id: 2 }, { $set: { tickets: ticketsLeftDay2 } })
-		await Concert.updateOne({ id: 3 }, { $set: { tickets: ticketsLeftDay3 } })
+		const concerts = await Concert.find().lean()
+		const seats = await Seats.find().lean()
 
-		res.json(await Concert.find())
+		let concertsArr = concerts.map(concert => {
+			concert.tickets = 50
+			for (let seat of seats) {
+				if (concert.day === seat.day) {
+				 concert.tickets--
+				}
+			}
+			return {
+				...concert,
+			}
+		})
+
+		res.json(concertsArr)
 	} catch (err) {
 		res.status(500).json({ message: err })
 	}
