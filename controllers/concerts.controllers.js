@@ -10,7 +10,7 @@ exports.getAll = async (req, res) => {
 			concert.tickets = 50
 			for (let seat of seats) {
 				if (concert.day === seat.day) {
-				 concert.tickets--
+					concert.tickets--
 				}
 			}
 			return {

@@ -3,6 +3,7 @@ const path = require('path')
 const cors = require('cors')
 const socket = require('socket.io')
 const app = express()
+require('dotenv').config()
 app.use(cors())
 
 const mongoose = require('mongoose')
@@ -35,8 +36,9 @@ app.use('/api', seatsRoutes) // add seats routes to server
 
 const NODE_ENV = process.env.NODE_ENV
 let dbUri = ''
+const password = process.env.DB_PASSWORD
 
-const uri = 'mongodb+srv://zagorskaj:EightXYZ@cluster0.gh0ncql.mongodb.net/NewWaveDB?retryWrites=true&w=majority'
+const uri = `mongodb+srv://zagorskaj:${password}@cluster0.gh0ncql.mongodb.net/NewWaveDB?retryWrites=true&w=majority`
 if (NODE_ENV === 'test') dbUri = 'mongodb://0.0.0.0:27017/neWaveDBtest'
 else dbUri = uri
 
